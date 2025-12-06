@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <title>過年排班意願調查（單館）</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #C4E1FF;
+      padding: 12px;
+    }
+    .shell {
+      max-width: 960px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 16px;
+      padding: 16px 16px 20px;
+      box-shadow: 0 10px 25px rgba(15,23,42,0.25);
+      border: 1px solid #93c5fd;
+    }
+    h1 {
+      font-size: 19px;
+      margin: 0 0 8px;
+    }
+    p.desc {
+      margin: 0 0 10px;
+      font-size: 13px;
+      color: #4b5563;
+      line-height: 1.5;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 80px minmax(0, 1fr);
+      gap: 6px 8px;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+    .form-grid label {
+      display: flex;
+      align-items: center;
+      font-weight: 600;
+    }
+    .form-grid input,
+    .form-grid textarea {
+      width: 100%;
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid #93c5fd;
+      font-size: 14px;
+    }
+    .form-grid textarea {
+      resize: vertical;
+      min-height: 48px;
+      max-height: 120px;
+    }
+
+    .hint-row {
+      font-size: 12px;
+      color: #6b7280;
+      margin-bottom: 6px;
+      line-height: 1.5;
+    }
+    .hint-row span.tag {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-size: 11px;
+      margin-right: 4px;
+    }
+
+    .btn-row {
+      margin-bottom: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    button {
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: none;
+      background: #2563eb;
+      color: #fff;
+      font-size: 14px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    button.secondary {
+      background: #6b7280;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    .status {
+      font-size: 12px;
+      color: #4b5563;
+      min-height: 18px;
+      margin-bottom: 4px;
+    }
+
+    .table-wrapper {
+      margin-top: 6px;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      overflow: hidden;
+      background: #f9fafb;
+      overflow-x: auto; /* 手機直式時可左右滑動 */
+    }
+table.schedule {
+  width: 100%;
+  min-width: 650px;
+  border-collapse: collapse;
+  font-size: 13px;
+  table-layout: fixed; /* 關鍵：欄寬固定，避免被內容撐爆 */
+}
+
+    table.schedule thead {
+      background: #eff6ff;
+    }
+    table.schedule th,
+    table.schedule td {
+      border: 1px solid #e5e7eb;
+      padding: 4px 6px;
+      text-align: center;
+    }
+    table.schedule th {
+      font-weight: 600;
+      font-size: 12px;
+      color: #1f2937;
+    }
+    table.schedule td.date-col {
+      width: 80px;
+      white-space: nowrap;
+    }
+    table.schedule td.week-col {
+      width: 60px;
+      white-space: nowrap;
+    }
+    table.schedule td.period-col {
+      width: 96px;
+      white-space: nowrap;
+      font-size: 12px;
+      color: #4b5563;
+      background: #f3f4f6;
+    }
+    table.schedule td.slot-cell {
+      padding: 3px;
+      vertical-align: top;
+      text-align: left;
+      font-size: 12px;
+    }
+
+    /* 每格像按鈕一樣可點選的樣式 */
+    .slot-btn {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      padding: 4px 5px;
+      background: #ffffff;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+      text-align: left;
+      min-height: 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .slot-btn:hover {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+    }
+    .slot-btn.selected {
+      background: #dbeafe;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 1px rgba(37,99,235,0.3);
+    }
+    .slot-label-main {
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+.slot-meta {
+  font-size: 11px;
+  color: #6b7280;
+  white-space: normal;
+  word-break: break-all;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;        /* 最多 2 行 */
+  -webkit-box-orient: vertical;
+}
+
+
+    @media (max-width: 600px) {
+      .shell {
+        padding: 12px 12px 16px;
+      }
+      h1 {
+        font-size: 17px;
+      }
+      .form-grid {
+        grid-template-columns: 72px minmax(0, 1fr);
+      }
+      table.schedule {
+        font-size: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <h1>過年排班意願調查（單館）</h1>
+    <p class="desc">
+      請輸入 <strong>ID碼</strong> 與 <strong>姓名</strong> 後，點「查詢 / 載入班表」。<br />
+      點選格子 = 勾選該時段；再次點選 = 取消。班表上只顯示 <strong>姓名</strong>，不顯示 ID。
+    </p>
+
+    <div class="form-grid">
+      <label for="staff-id">學號</label>
+      <input id="staff-id" type="text" placeholder="例如：412345678" />
+
+      <label for="staff-name">姓名</label>
+      <input id="staff-name" type="text" placeholder="例如：王小明" />
+
+      <label for="staff-note">備註欄</label>
+      <textarea id="staff-note" placeholder="例如：只能上上午班、某些日子不克出勤（非必填）"></textarea>
+    </div>
+
+    <div class="hint-row">
+      <div>
+        <span class="tag">提示</span>
+        已有紀錄者，只需輸入學號後按「查詢 / 載入班表」，姓名與備註會自動帶入。
+      </div>
+      <div>
+        <span class="tag">操作說明</span>
+        點一下格子 = 選取該時段，再點一次 = 取消選取。
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button id="btn-load">查詢 / 載入班表</button>
+      <button id="btn-submit" disabled>送出最新意願</button>
+      <button id="btn-clear" class="secondary">清除本頁所有選取</button>
+    </div>
+
+    <div class="status" id="status"></div>
+
+    <div class="table-wrapper">
+      <table class="schedule">
+        <thead>
+          <tr>
+            <th rowspan="2">日期</th>
+            <th rowspan="2">週</th>
+            <th>上午班1</th>
+            <th>中午班2</th>
+            <th>下午班3</th>
+          </tr>
+          <tr>
+            <th>8:00–11:00</th>
+            <th>11:00–14:00</th>
+            <th>13:30–16:30</th>
+          </tr>
+        </thead>
+        <tbody id="slots-tbody">
+          <!-- 由 shift-preference.js 動態產生 -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="./js/shift-preference.js"></script>
+</body>
+</html>

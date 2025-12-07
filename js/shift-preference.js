@@ -6,7 +6,7 @@
 
 // TODO: 這裡改成你的 GAS Web App URL
 const API_BASE =
-  'https://script.google.com/macros/s/AKfycbzXscnl2u4BbUltW_x5xLV0gXj01TAR3cXjIXAevKrOjV-3znLKbhvTtAly18g4tfGO/exec';
+  'https://script.google.com/macros/s/AKfycbz1cuhIPs9bvL5ehIYkf7-P60ZKd3gaM88B9Imz_dpMhff2kAgUKmYMA1UyM7sPh7iP/exec';
 
 const staffIdInput = document.getElementById('staff-id');
 const staffNameInput = document.getElementById('staff-name');

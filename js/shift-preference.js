@@ -1,11 +1,11 @@
 // js/shift-preference.js
 // 過年排班意願調查（單館）前端（Excel 風格表格 + 方格按鈕版）
-// - 讀取個人既有勾選（state）
-// - 每個時段格子都是可切換的按鈕（點一下選取、再點一次取消）
-// - 只顯示精簡姓名，完整名單放在 tooltip
+// - 每格按鈕：上面顯示「時段」「目前 X 人」
+// - 底下獨立一行顯示完整姓名，可左右滑動
+// - 只顯示姓名，不顯示 ID
 
 // TODO: 這裡改成你的 GAS Web App URL
-const API_BASE = 'https://script.google.com/macros/s/AKfycbzJrqIgxtDbd0PmbVq04qZT0X_5hJ6IVj83AiW6IhD0NYsLWVTj3SvwMPcxYQDDTyaL/exec';
+const API_BASE = 'https://script.google.com/macros/s/AKfycbzKhmgfygpLlaTfWZRJtjhcEidAzEVr289JPwK98plOrvuWWuNvVzIj6GXVVekXIQ2p/exec';
 
 const staffIdInput    = document.getElementById('staff-id');
 const staffNameInput  = document.getElementById('staff-name');
@@ -19,7 +19,7 @@ const statusEl        = document.getElementById('status');
 const slotsTbody      = document.getElementById('slots-tbody');
 
 let currentSlots      = []; // 從後端取得的 slot + stats
-let currentSelected   = []; // 目前勾選中的 slot_id
+let currentSelected   = []; // 目前選取中的 slot_id
 
 function setStatus(msg) {
   statusEl.textContent = msg || '';
@@ -119,29 +119,6 @@ function toggleSlotSelection(slotId, btnEl) {
 }
 
 /**
- * 將名字清單壓縮成簡短顯示用：只顯前 2 個 + …
- * 例如：王小明、林小華、陳大頭 → 王小明、林小華…
- */
-function buildShortNames(names, maxNames = 2, maxLen = 24) {
-  if (!names) return '';
-  const arr = names
-    .split(/[、,，]/)
-    .map(s => s.trim())
-    .filter(Boolean);
-
-  if (!arr.length) return '';
-
-  let short = arr.slice(0, maxNames).join('、');
-
-  // 若原本就很長或人數很多，加 …
-  if (arr.length > maxNames || names.length > maxLen) {
-    short += '…';
-  }
-
-  return short;
-}
-
-/**
  * 渲染 Excel 風格的班表（table）
  */
 function renderSlots() {
@@ -150,7 +127,7 @@ function renderSlots() {
   if (!currentSlots.length) {
     const tr = document.createElement('tr');
     const td = document.createElement('td');
-    td.colSpan = 5;
+    td.colSpan = 5; // 日期 / 週 / 上午 / 中午 / 下午
     td.style.textAlign = 'center';
     td.style.padding = '8px';
     td.textContent = '尚未載入班表。請先輸入學號與姓名，然後點「查詢 / 載入班表」。';
@@ -204,7 +181,9 @@ function renderSlots() {
 }
 
 /**
- * 建立三個班別那格（每格是一個可點選的「方塊按鈕」）
+ * 建立單一班別那格：
+ * - 按鈕：時段＋目前 X 人
+ * - 按鈕下方：完整姓名，可左右滑動
  */
 function buildSlotCell(slot) {
   const td = document.createElement('td');
@@ -224,24 +203,25 @@ function buildSlotCell(slot) {
 
   const mainLabel = document.createElement('div');
   mainLabel.className = 'slot-label-main';
-  mainLabel.textContent = slot.time_label || '';
+  mainLabel.textContent = slot.time_label || '';   // 時段
 
   const meta = document.createElement('div');
   meta.className = 'slot-meta';
-
   const count = Number(slot.count || 0);
-  const fullNames = slot.names || '';
-  const shortNames = buildShortNames(fullNames);
-
-  // 顯示精簡文字，但把完整名單放在 title（桌機可 hover，看得到全名）
-  meta.textContent = `目前 ${count} 人${shortNames ? '｜' + shortNames : ''}`;
-  if (fullNames) {
-    meta.title = `目前名單：${fullNames}`;
-  }
+  meta.textContent = `目前 ${count} 人`;          // 只顯人數，不顯姓名
 
   btn.appendChild(mainLabel);
   btn.appendChild(meta);
   td.appendChild(btn);
+
+  // 姓名列表（按鈕下方，可左右滑動）
+  const fullNames = slot.names || '';
+  if (fullNames) {
+    const namesDiv = document.createElement('div');
+    namesDiv.className = 'slot-names-scroll';
+    namesDiv.textContent = fullNames; // 直接顯示完整名單
+    td.appendChild(namesDiv);
+  }
 
   return td;
 }
@@ -308,7 +288,7 @@ async function loadState() {
 async function submitSelection() {
   const staff_id = staffIdInput.value.trim();
   const name = staffNameInput.value.trim();
-  const note = staffNoteInput.value.trim();
+  const note = staffNoteInput.value.trim(); // 可以多行
 
   if (!staff_id || !name) {
     alert('請輸入學號 / ID 碼與姓名');

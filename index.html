@@ -116,7 +116,7 @@
     }
     table.schedule {
       width: 100%;
-      min-width: 650px;
+      min-width: 200px;
       border-collapse: collapse;
       font-size: 13px;
       table-layout: fixed; /* 固定欄寬，避免被內容撐爆 */
@@ -136,37 +136,45 @@
       color: #1f2937;
     }
 
-    /* 日期 / 週 欄：縮窄 + 凍結欄位 */
-    table.schedule th.date-col,
-    table.schedule td.date-col {
-      width: 20px;              /* 原本 60 → 再縮小 50% */
-      position: sticky;
-      left: 0;
-      z-index: 2;
-      background: #f9fafb;
-    }
-    table.schedule th.week-col,
-    table.schedule td.week-col {
-      width: 48px;
-      position: sticky;
-      left: 30px;               /* 跟著日期欄改成 30 */
-      z-index: 2;
-      background: #f9fafb;
-    }
+/* 日期 / 週 欄：縮小 50% + sticky + 強制固定寬度 */
+table.schedule th.date-col,
+table.schedule td.date-col {
+  width: 30px !important;     /* ★ 原本約 60 → 30px */
+  max-width: 30px !important;
+  min-width: 30px !important;
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: #f9fafb;
+  padding: 2px;
+  white-space: nowrap;
+}
 
-    /* 上午 1 / 中午 2 / 下午 3 欄再縮小約 50% */
-    table.schedule th.time-col {
-      width: 30px;
-      max-width: 60px;
-    }
-    table.schedule td.slot-cell {
-      padding: 3px;
-      vertical-align: top;
-      text-align: left;
-      font-size: 12px;
-      width: 60px;
-      max-width: 60px;
-    }
+table.schedule th.week-col,
+table.schedule td.week-col {
+  width: 24px !important;     /* ★ 原本約 48 → 24px */
+  max-width: 24px !important;
+  min-width: 24px !important;
+  position: sticky;
+  left: 30px;                 /* ★ 必須跟日期欄的寬度一致 */
+  z-index: 2;
+  background: #f9fafb;
+  padding: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* 三個班別欄位為了配合縮小，略做微調 */
+table.schedule th.time-col {
+  width: 70px;
+  max-width: 70px;
+}
+table.schedule td.slot-cell {
+  width: 70px;
+  max-width: 70px;
+}
+
+
 
     /* 每格像按鈕一樣可點選的樣式 */
     .slot-btn {

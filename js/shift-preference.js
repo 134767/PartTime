@@ -1,5 +1,5 @@
 // js/shift-preference.js
-// 過年排班意願調查（單館）前端（Excel 風格表格 + 方格按鈕版）
+// 濟時寒假排班意願調查前端（Excel 風格表格 + 方格按鈕版）
 // - 每格按鈕：上面顯示「時段」「目前 X 人」
 // - 底下獨立一行顯示完整姓名，可左右滑動
 // - 只顯示姓名，不顯示 ID
@@ -21,8 +21,9 @@ const slotsTbody      = document.getElementById('slots-tbody');
 let currentSlots      = []; // 從後端取得的 slot + stats
 let currentSelected   = []; // 目前選取中的 slot_id
 
-function setStatus(msg) {
+function setStatus(msg, color) {
   statusEl.textContent = msg || '';
+  statusEl.style.color = color || ''; // 不指定時用原本 CSS 顏色
 }
 
 /**
@@ -130,7 +131,7 @@ function renderSlots() {
     td.colSpan = 5; // 日期 / 週 / 上午 / 中午 / 下午
     td.style.textAlign = 'center';
     td.style.padding = '8px';
-    td.textContent = '尚未載入班表。請先輸入學號與姓名，然後點「查詢 / 載入班表」。';
+    td.textContent = '尚未載入班表。請先輸入學號與姓名，然後點「查詢」。';
     tr.appendChild(td);
     slotsTbody.appendChild(tr);
     return;
@@ -234,7 +235,7 @@ async function loadState() {
   const name = staffNameInput.value.trim();
 
   if (!staff_id) {
-    alert('請先輸入學號 / ID 碼');
+    alert('請先輸入學號');
     return;
   }
 
@@ -248,7 +249,7 @@ async function loadState() {
     const data = await res.json();
 
     if (!data.ok) {
-      setStatus('讀取失敗：' + (data.code || 'UNKNOWN'));
+      setStatus('讀取失敗：' + (data.code || 'UNKNOWN'), '#EA0000');
       btnLoad.disabled = false;
       return;
     }
@@ -272,11 +273,11 @@ async function loadState() {
     } catch (e) {}
 
     renderSlots();
-    setStatus('載入完成，請點選格子勾選 / 取消時段後按「送出最新意願」。');
+    setStatus('載入完成，請點選格子勾選 / 取消時段後按「提交」。');
     btnSubmit.disabled = false;
   } catch (err) {
     console.error(err);
-    setStatus('讀取時發生錯誤，請稍後再試。');
+    setStatus('讀取時發生錯誤，請稍後再試。', '#EA0000');
   } finally {
     btnLoad.disabled = false;
   }
@@ -291,7 +292,7 @@ async function submitSelection() {
   const note = staffNoteInput.value.trim(); // 可以多行
 
   if (!staff_id || !name) {
-    alert('請輸入學號 / ID 碼與姓名');
+    alert('請輸入學號與姓名');
     return;
   }
 
@@ -316,15 +317,18 @@ async function submitSelection() {
 
     const data = await res.json();
     if (!data.ok) {
-      setStatus('送出失敗：' + (data.code || 'UNKNOWN'));
+      setStatus('送出失敗：' + (data.code || 'UNKNOWN'), '#EA0000');
       btnSubmit.disabled = false;
       return;
     }
 
-    setStatus('已送出！系統會在數分鐘內更新統計與人數顯示。若需修改，可重新載入後再送出。');
+    setStatus(
+      '已送出！系統需要5分鐘更新統計與人數顯示。若需修改，請於5分鐘後可重新載入後再送出。',
+      '#EA0000'
+    );
   } catch (err) {
     console.error(err);
-    setStatus('送出時發生錯誤，請稍後再試。');
+    setStatus('送出時發生錯誤，請稍後再試。', '#EA0000');
   } finally {
     btnSubmit.disabled = false;
   }

@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="utf-8" />
-  <title>過年排班意願調查（單館）</title>
+  <title>濟時寒假排班意願調查</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     * { box-sizing: border-box; }
@@ -139,7 +139,7 @@
     /* 日期 / 週 欄：縮窄 + 凍結欄位 */
     table.schedule th.date-col,
     table.schedule td.date-col {
-      width: 60px;              /* 比原本再窄一些 */
+      width: 20px;              /* 原本 60 → 再縮小 50% */
       position: sticky;
       left: 0;
       z-index: 2;
@@ -149,16 +149,23 @@
     table.schedule td.week-col {
       width: 48px;
       position: sticky;
-      left: 60px;               /* 緊接在日期後面 */
+      left: 30px;               /* 跟著日期欄改成 30 */
       z-index: 2;
       background: #f9fafb;
     }
 
+    /* 上午 1 / 中午 2 / 下午 3 欄再縮小約 50% */
+    table.schedule th.time-col {
+      width: 30px;
+      max-width: 60px;
+    }
     table.schedule td.slot-cell {
       padding: 3px;
       vertical-align: top;
       text-align: left;
       font-size: 12px;
+      width: 60px;
+      max-width: 60px;
     }
 
     /* 每格像按鈕一樣可點選的樣式 */
@@ -224,27 +231,30 @@
 </head>
 <body>
   <div class="shell">
-    <h1>過年排班意願調查（單館）</h1>
+    <h1>濟時寒假排班意願調查</h1>
     <p class="desc">
-      請輸入 <strong>ID碼</strong> 與 <strong>姓名</strong> 後，點「查詢 / 載入班表」。<br />
-      點選格子 = 選取該時段；再次點選 = 取消。班表上只顯示 <strong>姓名</strong>，不顯示 ID。
+      首次登入請輸入 <strong>學號</strong>、 <strong>姓名</strong>點「查詢」<br />
+      提交後想修改，輸入 <strong>學號</strong> 後，點「查詢」即可。
     </p>
 
     <div class="form-grid">
       <label for="staff-id">學號</label>
-      <input id="staff-id" type="text" placeholder="例如：412345678" />
+      <input id="staff-id" type="text" placeholder="例如：407066085" />
 
       <label for="staff-name">姓名</label>
-      <input id="staff-name" type="text" placeholder="例如：王小明" />
+      <input id="staff-name" type="text" placeholder="兩個字就好，例如:帛勳" />
 
       <label for="staff-note">備註欄</label>
-      <textarea id="staff-note" placeholder="例如：只能上上午班、某些日子不克出勤（可多行輸入）"></textarea>
+      <textarea
+        id="staff-note"
+        placeholder="(手機↵)enter/可多行條列備註，範例內容：1/5只能上8:00-10:00...等"
+      ></textarea>
     </div>
 
     <div class="hint-row">
       <div>
         <span class="tag">提示</span>
-        已有紀錄者，只需輸入學號後按「查詢 / 載入班表」，姓名與備註會自動帶入。
+        已有紀錄者，只需輸入學號後按「查詢」，姓名與備註會自動帶入。
       </div>
       <div>
         <span class="tag">操作說明</span>
@@ -253,9 +263,9 @@
     </div>
 
     <div class="btn-row">
-      <button id="btn-load">查詢 / 載入班表</button>
-      <button id="btn-submit" disabled>送出最新意願</button>
-      <button id="btn-clear" class="secondary">清除本頁所有選取</button>
+      <button id="btn-load">查詢</button>
+      <button id="btn-submit" disabled>提交</button>
+      <button id="btn-clear" class="secondary">清除所有選取</button>
     </div>
 
     <div class="status" id="status"></div>
@@ -266,9 +276,9 @@
           <tr>
             <th class="date-col">日期</th>
             <th class="week-col">週</th>
-            <th>上午班1</th>
-            <th>中午班2</th>
-            <th>下午班3</th>
+            <th class="time-col">上午班1</th>
+            <th class="time-col">中午班2</th>
+            <th class="time-col">下午班3</th>
           </tr>
         </thead>
         <tbody id="slots-tbody">

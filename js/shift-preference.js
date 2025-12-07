@@ -5,21 +5,22 @@
 // - 只顯示姓名，不顯示 ID
 
 // TODO: 這裡改成你的 GAS Web App URL
-const API_BASE = 'https://script.google.com/macros/s/AKfycbzKhmgfygpLlaTfWZRJtjhcEidAzEVr289JPwK98plOrvuWWuNvVzIj6GXVVekXIQ2p/exec';
+const API_BASE =
+  'https://script.google.com/macros/s/AKfycbzKhmgfygpLlaTfWZRJtjhcEidAzEVr289JPwK98plOrvuWWuNvVzIj6GXVVekXIQ2p/exec';
 
-const staffIdInput    = document.getElementById('staff-id');
-const staffNameInput  = document.getElementById('staff-name');
-const staffNoteInput  = document.getElementById('staff-note');
+const staffIdInput = document.getElementById('staff-id');
+const staffNameInput = document.getElementById('staff-name');
+const staffNoteInput = document.getElementById('staff-note');
 
-const btnLoad         = document.getElementById('btn-load');
-const btnSubmit       = document.getElementById('btn-submit');
-const btnClear        = document.getElementById('btn-clear');
+const btnLoad = document.getElementById('btn-load');
+const btnSubmit = document.getElementById('btn-submit');
+const btnClear = document.getElementById('btn-clear');
 
-const statusEl        = document.getElementById('status');
-const slotsTbody      = document.getElementById('slots-tbody');
+const statusEl = document.getElementById('status');
+const slotsTbody = document.getElementById('slots-tbody');
 
-let currentSlots      = []; // 從後端取得的 slot + stats
-let currentSelected   = []; // 目前選取中的 slot_id
+let currentSlots = []; // 從後端取得的 slot + stats
+let currentSelected = []; // 目前選取中的 slot_id
 
 function setStatus(msg, color) {
   statusEl.textContent = msg || '';
@@ -48,7 +49,7 @@ function getDateInfo(slot) {
       return {
         displayDate: `${m}/${day}`,
         weekday,
-        jsDate: d
+        jsDate: d,
       };
     }
   }
@@ -66,7 +67,7 @@ function getDateInfo(slot) {
         return {
           displayDate: `${m}/${dNum}`,
           weekday,
-          jsDate: d
+          jsDate: d,
         };
       }
     }
@@ -76,7 +77,7 @@ function getDateInfo(slot) {
   return {
     displayDate: slot.date_label || slot.slot_id || '',
     weekday: '',
-    jsDate: null
+    jsDate: null,
   };
 }
 
@@ -85,7 +86,7 @@ function getDateInfo(slot) {
  */
 function groupByDate(slots) {
   const map = {};
-  slots.forEach(s => {
+  slots.forEach((s) => {
     let key = '';
     if (s.slot_id && /^\d{4}-\d{2}-\d{2}/.test(s.slot_id)) {
       key = s.slot_id.slice(0, 10); // yyyy-mm-dd
@@ -106,6 +107,15 @@ function groupByDate(slots) {
 }
 
 /**
+ * 依 slot_id suffix 取得當天對應的班別
+ * 例如 suffix = "_1" → 找出 slot_id 結尾為 _1 的那筆
+ */
+function getSlotBySuffix(slots, suffix) {
+  if (!Array.isArray(slots)) return null;
+  return slots.find((s) => s.slot_id && s.slot_id.endsWith(suffix)) || null;
+}
+
+/**
  * 切換某個 slot_id 的選取狀態（被方格按鈕點擊時呼叫）
  */
 function toggleSlotSelection(slotId, btnEl) {
@@ -120,7 +130,23 @@ function toggleSlotSelection(slotId, btnEl) {
 }
 
 /**
+ * 沒有對應班別時，畫出一個空白格子，避免整行崩掉
+ */
+function buildEmptySlotCell() {
+  const td = document.createElement('td');
+  td.className = 'slot-cell';
+  const dummy = document.createElement('div');
+  dummy.className = 'slot-btn';
+  dummy.style.opacity = '0.3';
+  dummy.style.cursor = 'default';
+  dummy.textContent = '—';
+  td.appendChild(dummy);
+  return td;
+}
+
+/**
  * 渲染 Excel 風格的班表（table）
+ * ★ 嚴格依 slot_id 的 _1 / _2 / _3 來對應上午 / 中午 / 下午
  */
 function renderSlots() {
   slotsTbody.innerHTML = '';
@@ -140,19 +166,16 @@ function renderSlots() {
   const grouped = groupByDate(currentSlots);
   const dateKeys = Object.keys(grouped).sort(); // 依日期排序
 
-  dateKeys.forEach(key => {
+  dateKeys.forEach((key) => {
     const slots = grouped[key];
 
     // 取這一天中，第一個 slot 來計算日期 / 週幾
     const dateInfo = getDateInfo(slots[0]);
 
-    // 預期三個班別：_1 / _2 / _3
-    const morning = slots.find(s => s.time_label && s.time_label.indexOf('8:00') !== -1) ||
-                    slots.find(s => /_1$/.test(s.slot_id)) || slots[0];
-    const noon    = slots.find(s => s.time_label && s.time_label.indexOf('11:00') !== -1) ||
-                    slots.find(s => /_2$/.test(s.slot_id)) || slots[1] || slots[0];
-    const afternoon = slots.find(s => s.time_label && s.time_label.indexOf('13:30') !== -1) ||
-                      slots.find(s => /_3$/.test(s.slot_id)) || slots[2] || slots[0];
+    // 嚴格依 slot_id suffix 取得三個班別
+    const morning = getSlotBySuffix(slots, '_1');
+    const noon = getSlotBySuffix(slots, '_2');
+    const afternoon = getSlotBySuffix(slots, '_3');
 
     const tr = document.createElement('tr');
 
@@ -169,13 +192,13 @@ function renderSlots() {
     tr.appendChild(tdWeek);
 
     // 上午班
-    tr.appendChild(buildSlotCell(morning));
+    tr.appendChild(morning ? buildSlotCell(morning) : buildEmptySlotCell());
 
     // 中午班
-    tr.appendChild(buildSlotCell(noon));
+    tr.appendChild(noon ? buildSlotCell(noon) : buildEmptySlotCell());
 
     // 下午班
-    tr.appendChild(buildSlotCell(afternoon));
+    tr.appendChild(afternoon ? buildSlotCell(afternoon) : buildEmptySlotCell());
 
     slotsTbody.appendChild(tr);
   });
@@ -204,12 +227,12 @@ function buildSlotCell(slot) {
 
   const mainLabel = document.createElement('div');
   mainLabel.className = 'slot-label-main';
-  mainLabel.textContent = slot.time_label || '';   // 時段
+  mainLabel.textContent = slot.time_label || ''; // 時段
 
   const meta = document.createElement('div');
   meta.className = 'slot-meta';
   const count = Number(slot.count || 0);
-  meta.textContent = `目前 ${count} 人`;          // 只顯人數，不顯姓名
+  meta.textContent = `目前 ${count} 人`; // 只顯人數，不顯姓名
 
   btn.appendChild(mainLabel);
   btn.appendChild(meta);
@@ -303,7 +326,7 @@ async function submitSelection() {
     staff_id,
     name,
     note,
-    slots: currentSelected
+    slots: currentSelected,
   };
 
   try {
@@ -312,7 +335,7 @@ async function submitSelection() {
 
     const res = await fetch(`${API_BASE}?action=submit`, {
       method: 'POST',
-      body: form
+      body: form,
     });
 
     const data = await res.json();
@@ -340,7 +363,7 @@ async function submitSelection() {
 function clearAllSelection() {
   currentSelected = [];
   const btns = slotsTbody.querySelectorAll('.slot-btn.selected');
-  btns.forEach(b => b.classList.remove('selected'));
+  btns.forEach((b) => b.classList.remove('selected'));
   setStatus('已清除本頁的所有選取，若要生效請重新送出。');
 }
 

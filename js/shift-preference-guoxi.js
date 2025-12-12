@@ -1,15 +1,15 @@
-// js/shift-preference.js
-// 濟時寒假排班意願調查前端（Excel 風格表格 + 方格按鈕版）
+// js/shift-preference-guoxi.js
+// 國璽寒假排班意願調查前端（Excel 風格表格 + 方格按鈕版）
+// - 支援 8 個班別
 // - 每格按鈕：上面顯示「時段」「目前 X 人」
 // - 底下獨立一行顯示完整姓名，可左右滑動
-// - 只顯示姓名，不顯示 ID
 
 // TODO: 這裡改成你的 GAS Web App URL
 const API_BASE =
   'https://script.google.com/macros/s/AKfycbxL2_QzEbsT2426X-kD-973yiuvB44wxD6NHtpjNv79onidl64RxLF6NULI985X-Jmo/exec';
 
 const libraryIdInput = document.getElementById('library-id');
-const LIBRARY = libraryIdInput ? libraryIdInput.value : '濟時';
+const LIBRARY = libraryIdInput ? libraryIdInput.value : '國璽';
 
 const staffIdInput = document.getElementById('staff-id');
 const staffNameInput = document.getElementById('staff-name');
@@ -149,7 +149,7 @@ function buildEmptySlotCell() {
 
 /**
  * 渲染 Excel 風格的班表（table）
- * ★ 嚴格依 slot_id 的 _1 / _2 / _3 來對應上午 / 中午 / 下午
+ * ★ 國璽樓：8 個班別 (_1 到 _8)
  */
 function renderSlots() {
   slotsTbody.innerHTML = '';
@@ -157,7 +157,7 @@ function renderSlots() {
   if (!currentSlots.length) {
     const tr = document.createElement('tr');
     const td = document.createElement('td');
-    td.colSpan = 5; // 日期 / 週 / 上午 / 中午 / 下午
+    td.colSpan = 10; // 日期 / 週 / 8個班別
     td.style.textAlign = 'center';
     td.style.padding = '8px';
     td.textContent = '尚未載入班表。請先輸入學號與姓名，然後點「查詢」。';
@@ -175,10 +175,15 @@ function renderSlots() {
     // 取這一天中，第一個 slot 來計算日期 / 週幾
     const dateInfo = getDateInfo(slots[0]);
 
-    // 嚴格依 slot_id suffix 取得三個班別
-    const morning = getSlotBySuffix(slots, '_1');
-    const noon = getSlotBySuffix(slots, '_2');
-    const afternoon = getSlotBySuffix(slots, '_3');
+    // 國璽樓：8 個班別
+    const slot1 = getSlotBySuffix(slots, '_1');
+    const slot2 = getSlotBySuffix(slots, '_2');
+    const slot3 = getSlotBySuffix(slots, '_3');
+    const slot4 = getSlotBySuffix(slots, '_4');
+    const slot5 = getSlotBySuffix(slots, '_5');
+    const slot6 = getSlotBySuffix(slots, '_6');
+    const slot7 = getSlotBySuffix(slots, '_7');
+    const slot8 = getSlotBySuffix(slots, '_8');
 
     const tr = document.createElement('tr');
 
@@ -194,14 +199,15 @@ function renderSlots() {
     tdWeek.textContent = dateInfo.weekday || '';
     tr.appendChild(tdWeek);
 
-    // 上午班
-    tr.appendChild(morning ? buildSlotCell(morning) : buildEmptySlotCell());
-
-    // 中午班
-    tr.appendChild(noon ? buildSlotCell(noon) : buildEmptySlotCell());
-
-    // 下午班
-    tr.appendChild(afternoon ? buildSlotCell(afternoon) : buildEmptySlotCell());
+    // 8 個班別
+    tr.appendChild(slot1 ? buildSlotCell(slot1) : buildEmptySlotCell());
+    tr.appendChild(slot2 ? buildSlotCell(slot2) : buildEmptySlotCell());
+    tr.appendChild(slot3 ? buildSlotCell(slot3) : buildEmptySlotCell());
+    tr.appendChild(slot4 ? buildSlotCell(slot4) : buildEmptySlotCell());
+    tr.appendChild(slot5 ? buildSlotCell(slot5) : buildEmptySlotCell());
+    tr.appendChild(slot6 ? buildSlotCell(slot6) : buildEmptySlotCell());
+    tr.appendChild(slot7 ? buildSlotCell(slot7) : buildEmptySlotCell());
+    tr.appendChild(slot8 ? buildSlotCell(slot8) : buildEmptySlotCell());
 
     slotsTbody.appendChild(tr);
   });

@@ -2,14 +2,14 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="utf-8" />
-  <title>濟時寒假排班意願調查</title>
+  <title>國璽寒假排班意願調查</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #C4E1FF;
+      background: #FFE1C4;
       padding: 12px;
     }
     .shell {
@@ -19,7 +19,7 @@
       border-radius: 16px;
       padding: 16px 16px 20px;
       box-shadow: 0 10px 25px rgba(15,23,42,0.25);
-      border: 1px solid #93c5fd;
+      border: 1px solid #fdbf93;
     }
     h1 {
       font-size: 19px;
@@ -49,7 +49,7 @@
       width: 100%;
       padding: 6px 8px;
       border-radius: 8px;
-      border: 1px solid #93c5fd;
+      border: 1px solid #fdbf93;
       font-size: 14px;
     }
     .form-grid textarea {
@@ -68,8 +68,8 @@
       display: inline-block;
       padding: 2px 6px;
       border-radius: 999px;
-      background: #eff6ff;
-      color: #1d4ed8;
+      background: #fff7ed;
+      color: #c2410c;
       font-size: 11px;
       margin-right: 4px;
     }
@@ -122,7 +122,7 @@
       table-layout: fixed; /* 固定欄寬，避免被內容撐爆 */
     }
     table.schedule thead {
-      background: #eff6ff;
+      background: #fff7ed;
     }
     table.schedule th,
     table.schedule td {
@@ -139,7 +139,7 @@
 /* 日期 / 週 欄：縮小 50% + sticky + 強制固定寬度 */
 table.schedule th.date-col,
 table.schedule td.date-col {
-  width: 30px !important;     /* ★ 原本約 60 → 30px */
+  width: 30px !important;
   max-width: 30px !important;
   min-width: 30px !important;
   position: sticky;
@@ -152,11 +152,11 @@ table.schedule td.date-col {
 
 table.schedule th.week-col,
 table.schedule td.week-col {
-  width: 24px !important;     /* ★ 原本約 48 → 24px */
+  width: 24px !important;
   max-width: 24px !important;
   min-width: 24px !important;
   position: sticky;
-  left: 30px;                 /* ★ 必須跟日期欄的寬度一致 */
+  left: 30px;
   z-index: 2;
   background: #f9fafb;
   padding: 2px;
@@ -164,7 +164,7 @@ table.schedule td.week-col {
   overflow: hidden;
 }
 
-/* 三個班別欄位為了配合縮小，略做微調 */
+/* 八個班別欄位 */
 table.schedule th.time-col {
   width: 70px;
   max-width: 70px;
@@ -192,13 +192,13 @@ table.schedule td.slot-cell {
       justify-content: center;
     }
     .slot-btn:hover {
-      background: #eff6ff;
-      border-color: #bfdbfe;
+      background: #fff7ed;
+      border-color: #fed7aa;
     }
     .slot-btn.selected {
-      background: #dbeafe;
-      border-color: #2563eb;
-      box-shadow: 0 0 0 1px rgba(37,99,235,0.3);
+      background: #ffedd5;
+      border-color: #ea580c;
+      box-shadow: 0 0 0 1px rgba(234,88,12,0.3);
     }
     .slot-label-main {
       font-weight: 500;
@@ -236,7 +236,7 @@ table.schedule td.slot-cell {
       }
     }
 #btn-load {
-  background: #2563EB; /* 藍色 查詢按鈕*/
+  background: #ea580c; /* 橘色 查詢按鈕*/
 }
 #btn-submit {
   background: #00BB00; /* 綠色 提交按鈕*/
@@ -248,14 +248,14 @@ table.schedule td.slot-cell {
 </head>
 <body>
   <div class="shell">
-    <h1>濟時寒假排班意願調查</h1>
+    <h1>國璽寒假排班意願調查</h1>
     <p class="desc">
       首次登入請輸入 <strong>學號</strong>、 <strong>姓名</strong>點「查詢」<br />
       提交後想修改，輸入 <strong>學號</strong> 後，點「查詢」即可。
     </p>
 
     <!-- 隱藏的館別識別 -->
-    <input id="library-id" type="hidden" value="濟時" />
+    <input id="library-id" type="hidden" value="國璽" />
 
     <div class="form-grid">
       <label for="staff-id">學號</label>
@@ -296,18 +296,23 @@ table.schedule td.slot-cell {
           <tr>
             <th class="date-col">日期</th>
             <th class="week-col">週</th>
-            <th class="time-col">上午班1</th>
-            <th class="time-col">中午班2</th>
-            <th class="time-col">下午班3</th>
+            <th class="time-col">早1</th>
+            <th class="time-col">早2</th>
+            <th class="time-col">午1</th>
+            <th class="time-col">午2</th>
+            <th class="time-col">早1</th>
+            <th class="time-col">午1</th>
+            <th class="time-col">晚1</th>
+            <th class="time-col">晚2</th>
           </tr>
         </thead>
         <tbody id="slots-tbody">
-          <!-- 由 shift-preference.js 動態產生 -->
+          <!-- 由 shift-preference-guoxi.js 動態產生 -->
         </tbody>
       </table>
     </div>
   </div>
 
-  <script src="./js/shift-preference.js"></script>
+  <script src="./js/shift-preference-guoxi.js"></script>
 </body>
 </html>

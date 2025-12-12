@@ -6,7 +6,7 @@
 
 // TODO: 這裡改成你的 GAS Web App URL
 const API_BASE =
-  'https://script.google.com/macros/s/AKfycbxL2_QzEbsT2426X-kD-973yiuvB44wxD6NHtpjNv79onidl64RxLF6NULI985X-Jmo/exec';
+  'https://script.google.com/macros/s/AKfycbx-349Zxt6sYX0QkVkVOOP9Re1TYand6_y9ESVIElD9Sbk6ZpRlCrz_dsvP9UgJyatc/exec';
 
 const libraryIdInput = document.getElementById('library-id');
 const LIBRARY = libraryIdInput ? libraryIdInput.value : '國璽';

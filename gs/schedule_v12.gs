@@ -241,51 +241,54 @@ function renderJishiSummary(library) {
     const slotSorted = group.slots.slice().sort((a, b) => a.no - b.no);
 
     if (isGuoxi) {
-      // 國璽樓：8 個班別
-      let colC = '', colD = '', colE = '', colF = '';
-      let colG = '', colH = '', colI = '', colJ = '';
+      // 國璽樓：8 個班別，按班次編號 _1 到 _8 匹配
+      const slotMap = {};
+      for (const s of slotSorted) {
+        slotMap[s.no] = s.names || '';
+      }
       
-      if (slotSorted[0]) colC = slotSorted[0].names || ''; // 早1 (平日3樓早午)
-      if (slotSorted[1]) colD = slotSorted[1].names || ''; // 早2 (平日3樓早午)
-      if (slotSorted[2]) colE = slotSorted[2].names || ''; // 午1 (平日3樓早午)
-      if (slotSorted[3]) colF = slotSorted[3].names || ''; // 午2 (平日3樓早午)
-      if (slotSorted[4]) colG = slotSorted[4].names || ''; // 早1 (館日5樓3班)
-      if (slotSorted[5]) colH = slotSorted[5].names || ''; // 午1 (館日5樓3班)
-      if (slotSorted[6]) colI = slotSorted[6].names || ''; // 晩1 (3樓&5樓)
-      if (slotSorted[7]) colJ = slotSorted[7].names || ''; // 晩2 (晚間5樓)
-      
+      const colC = slotMap[1] || ''; // _1: 早1 (平日3樓早午)
+      const colD = slotMap[2] || ''; // _2: 早2 (平日3樓早午)
+      const colE = slotMap[3] || ''; // _3: 午1 (平日3樓早午)
+      const colF = slotMap[4] || ''; // _4: 午2 (平日3樓早午)
+      const colG = slotMap[5] || ''; // _5: 早1 (假日5樓班)
+      const colH = slotMap[6] || ''; // _6: 午1 (假日5樓班)
+      const colI = slotMap[7] || ''; // _7: 晩1 (3樓&5樓)
+      const colJ = slotMap[8] || ''; // _8: 晩2 (晚間5樓)
       const colK = ''; // 備註
       
       rows.push([
         d,        // A：日期
         weekday,  // B：星期
-        colC,     // C：早1
-        colD,     // D：早2
-        colE,     // E：午1
-        colF,     // F：午2
-        colG,     // G：早1
-        colH,     // H：午1
-        colI,     // I：晩1
-        colJ,     // J：晩2
+        colC,     // C：_1 早1
+        colD,     // D：_2 早2
+        colE,     // E：_3 午1
+        colF,     // F：_4 午2
+        colG,     // G：_5 早1(假日)
+        colH,     // H：_6 午1(假日)
+        colI,     // I：_7 晩1
+        colJ,     // J：_8 晩2
         colK      // K：備註
       ]);
     } else {
-      // 濟時樓：3 個班別
-      let colC = '', colD = '', colE = '';
+      // 濟時樓：3 個班別，按班次編號 _1, _2, _3 匹配
+      const slotMap = {};
+      for (const s of slotSorted) {
+        slotMap[s.no] = s.names || '';
+      }
       
-      if (slotSorted[0]) colC = slotSorted[0].names || ''; // 早1
-      if (slotSorted[1]) colD = slotSorted[1].names || ''; // 午2
-      if (slotSorted[2]) colE = slotSorted[2].names || ''; // 午1
-      
+      const colC = slotMap[1] || ''; // _1: 上午班1
+      const colD = slotMap[2] || ''; // _2: 中午班2
+      const colE = slotMap[3] || ''; // _3: 下午班3
       const colF = ''; // 特休
       const colG = ''; // 備註
       
       rows.push([
         d,        // A：日期
         weekday,  // B：星期
-        colC,     // C：早1
-        colD,     // D：午2
-        colE,     // E：午1
+        colC,     // C：_1 上午班1
+        colD,     // D：_2 中午班2
+        colE,     // E：_3 下午班3
         colF,     // F：特休
         colG      // G：備註
       ]);

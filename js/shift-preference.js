@@ -25,6 +25,13 @@ const slotsTbody = document.getElementById('slots-tbody');
 let currentSlots = []; // 從後端取得的 slot + stats
 let currentSelected = []; // 目前選取中的 slot_id
 
+// 長按拖拽多選狀態
+let isDragging = false;
+let dragStartSlotId = null;
+let dragMode = null; // 'select' or 'deselect'
+let longPressTimer = null;
+const LONG_PRESS_DURATION = 300; // 300ms 觸發長按
+
 function setStatus(msg, color) {
   statusEl.textContent = msg || '';
   statusEl.style.color = color || ''; // 不指定時用原本 CSS 顏色
@@ -119,16 +126,121 @@ function getSlotBySuffix(slots, suffix) {
 }
 
 /**
+ * 設置拖拽多選事件監聽
+ */
+function setupDragSelection(btnEl, slotId) {
+  // 鼠標/觸控按下：開始長按計時
+  const startLongPress = (e) => {
+    longPressTimer = setTimeout(() => {
+      startDragMode(slotId, btnEl);
+    }, LONG_PRESS_DURATION);
+  };
+
+  // 取消長按計時
+  const cancelLongPress = () => {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      longPressTimer = null;
+    }
+  };
+
+  // 鼠標事件
+  btnEl.addEventListener('mousedown', startLongPress);
+  btnEl.addEventListener('mouseup', cancelLongPress);
+  btnEl.addEventListener('mouseleave', cancelLongPress);
+  
+  // 拖拽經過時選取/取消
+  btnEl.addEventListener('mouseenter', () => {
+    if (isDragging) {
+      applyDragSelection(slotId, btnEl);
+    }
+  });
+
+  // 觸控事件
+  btnEl.addEventListener('touchstart', (e) => {
+    startLongPress(e);
+  }, { passive: true });
+  
+  btnEl.addEventListener('touchend', cancelLongPress);
+  btnEl.addEventListener('touchcancel', cancelLongPress);
+  
+  // 觸控滑動時選取
+  btnEl.addEventListener('touchmove', (e) => {
+    if (isDragging) {
+      e.preventDefault();
+      const touch = e.touches[0];
+      const element = document.elementFromPoint(touch.clientX, touch.clientY);
+      if (element && element.hasAttribute('data-slot-id')) {
+        const touchedSlotId = element.getAttribute('data-slot-id');
+        applyDragSelection(touchedSlotId, element);
+      }
+    }
+  }, { passive: false });
+}
+
+/**
+ * 開始拖拽模式
+ */
+function startDragMode(slotId, btnEl) {
+  isDragging = true;
+  dragStartSlotId = slotId;
+  
+  // 決定是「選取模式」還是「取消模式」
+  if (currentSelected.includes(slotId)) {
+    dragMode = 'deselect';
+    removeSlotSelection(slotId, btnEl);
+  } else {
+    dragMode = 'select';
+    addSlotSelection(slotId, btnEl);
+  }
+  
+  // 添加視覺反饋
+  document.body.style.userSelect = 'none';
+  btnEl.style.opacity = '0.7';
+}
+
+/**
+ * 應用拖拽選取
+ */
+function applyDragSelection(slotId, btnEl) {
+  if (!isDragging || slotId === dragStartSlotId) return;
+  
+  if (dragMode === 'select') {
+    addSlotSelection(slotId, btnEl);
+  } else if (dragMode === 'deselect') {
+    removeSlotSelection(slotId, btnEl);
+  }
+}
+
+/**
+ * 添加班次選取
+ */
+function addSlotSelection(slotId, btnEl) {
+  if (!currentSelected.includes(slotId)) {
+    currentSelected.push(slotId);
+    btnEl.classList.add('selected');
+  }
+}
+
+/**
+ * 移除班次選取
+ */
+function removeSlotSelection(slotId, btnEl) {
+  const idx = currentSelected.indexOf(slotId);
+  if (idx > -1) {
+    currentSelected.splice(idx, 1);
+    btnEl.classList.remove('selected');
+  }
+}
+
+/**
  * 切換某個 slot_id 的選取狀態（被方格按鈕點擊時呼叫）
  */
 function toggleSlotSelection(slotId, btnEl) {
-  const idx = currentSelected.indexOf(slotId);
-  if (idx === -1) {
-    currentSelected.push(slotId);
-    btnEl.classList.add('selected');
+  if (currentSelected.includes(slotId)) {
+    removeSlotSelection(slotId, btnEl);
   } else {
-    currentSelected.splice(idx, 1);
-    btnEl.classList.remove('selected');
+    addSlotSelection(slotId, btnEl);
   }
 }
 
@@ -224,9 +336,15 @@ function buildSlotCell(slot) {
     btn.classList.add('selected');
   }
 
-  btn.addEventListener('click', () => {
-    toggleSlotSelection(slot.slot_id, btn);
+  // 點擊事件（單選）
+  btn.addEventListener('click', (e) => {
+    if (!isDragging) {
+      toggleSlotSelection(slot.slot_id, btn);
+    }
   });
+
+  // 長按拖拽多選支持
+  setupDragSelection(btn, slot.slot_id);
 
   const mainLabel = document.createElement('div');
   mainLabel.className = 'slot-label-main';
@@ -376,6 +494,34 @@ btnLoad.addEventListener('click', async () => {
 });
 btnSubmit.addEventListener('click', submitSelection);
 btnClear.addEventListener('click', clearAllSelection);
+
+// 全局：結束拖拽模式
+document.addEventListener('mouseup', () => {
+  if (isDragging) {
+    isDragging = false;
+    dragStartSlotId = null;
+    dragMode = null;
+    document.body.style.userSelect = '';
+    
+    // 恢復所有按鈕透明度
+    document.querySelectorAll('.slot-btn').forEach(btn => {
+      btn.style.opacity = '';
+    });
+  }
+});
+
+document.addEventListener('touchend', () => {
+  if (isDragging) {
+    isDragging = false;
+    dragStartSlotId = null;
+    dragMode = null;
+    document.body.style.userSelect = '';
+    
+    document.querySelectorAll('.slot-btn').forEach(btn => {
+      btn.style.opacity = '';
+    });
+  }
+});
 
 // 載入頁面時，自動帶出上次使用的 ID，並顯示預設提示列
 window.addEventListener('DOMContentLoaded', () => {
